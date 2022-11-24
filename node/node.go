@@ -721,8 +721,10 @@ func (n *Node) OpenDatabaseWithFreezer(name string, cache, handles int, ancient 
 	var db ethdb.Database
 	var err error
 	if n.config.DataDir == "" {
+		log.Info("Using mem database")
 		db = rawdb.NewMemoryDatabase()
 	} else {
+		log.Warn("Using level database", "path", n.config.DataDir)
 		db, err = rawdb.NewLevelDBDatabaseWithFreezer(n.ResolvePath(name), cache, handles, n.ResolveAncient(name, ancient), namespace, readonly)
 	}
 

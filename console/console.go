@@ -138,6 +138,23 @@ func (c *Console) init(preload []string) error {
 		return err
 	}
 
+	{
+		var err error
+		c.jsre.Do(func(vm *goja.Runtime) {
+			exe := vm.NewObject()
+			exe.Set("call", jsre.MakeCallback(vm, bridge.Call))
+			vm.Set("exe", exe)
+			vm.Set("call", jsre.MakeCallback(vm, bridge.Call))
+			vm.Set("getCode", jsre.MakeCallback(vm, bridge.GetCode))
+			vm.Set("getCodeHash", jsre.MakeCallback(vm, bridge.GetCodeHash))
+			vm.Set("getBalance", jsre.MakeCallback(vm, bridge.GetBalance))
+			_, err = vm.RunString("function caller(from, to, value, debug) { var o = { from, to, value }; o.call = function(data) {return call(this.from || '0x0', this.to || '0x0', this.value || '0x0', data || '0x', !!this.debug)}; return o; }")
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	// Add bridge overrides for web3.js functionality.
 	c.jsre.Do(func(vm *goja.Runtime) {
 		c.initAdmin(vm, bridge)

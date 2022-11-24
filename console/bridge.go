@@ -36,6 +36,7 @@ import (
 // bridge is a collection of JavaScript utility methods to bride the .js runtime
 // environment and the Go RPC connection backing the remote method calls.
 type bridge struct {
+	Executor
 	client   *rpc.Client         // RPC client to execute Ethereum requests through
 	prompter prompt.UserPrompter // Input prompter to allow interactive user feedback
 	printer  io.Writer           // Output writer to serialize any display strings to
@@ -44,6 +45,7 @@ type bridge struct {
 // newBridge creates a new JavaScript wrapper around an RPC client.
 func newBridge(client *rpc.Client, prompter prompt.UserPrompter, printer io.Writer) *bridge {
 	return &bridge{
+		Executor: client.Executor.(Executor),
 		client:   client,
 		prompter: prompter,
 		printer:  printer,
@@ -56,6 +58,13 @@ func getJeth(vm *goja.Runtime) *goja.Object {
 		panic(vm.ToValue("jeth object does not exist"))
 	}
 	return jeth.ToObject(vm)
+}
+
+type Executor interface {
+	Call(call jsre.Call) (goja.Value, error)
+	GetCode(call jsre.Call) (goja.Value, error)
+	GetCodeHash(call jsre.Call) (goja.Value, error)
+	GetBalance(call jsre.Call) (goja.Value, error)
 }
 
 // NewAccount is a wrapper around the personal.newAccount RPC method that uses a

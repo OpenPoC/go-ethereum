@@ -483,7 +483,7 @@ func (g *Genesis) ToBlock() *types.Block {
 func (g *Genesis) Commit(db ethdb.Database) (*types.Block, error) {
 	block := g.ToBlock()
 	if block.Number().Sign() != 0 {
-		return nil, errors.New("can't commit genesis block with number > 0")
+		// return nil, errors.New("can't commit genesis block with number > 0")
 	}
 	config := g.Config
 	if config == nil {

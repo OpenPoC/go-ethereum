@@ -99,6 +99,8 @@ type Client struct {
 	reqInit     chan *requestOp  // register response IDs, takes write lock
 	reqSent     chan error       // signals write completion, releases write lock
 	reqTimeout  chan *requestOp  // removes response IDs when call timeout expires
+
+	Executor interface{}
 }
 
 type reconnectFunc func(context.Context) (ServerCodec, error)
