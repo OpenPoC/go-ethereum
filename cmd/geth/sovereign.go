@@ -94,6 +94,19 @@ func (env *environment) GetBalance(call jsre.Call) (goja.Value, error) {
 	return call.VM.ToValue(data.String()), nil
 }
 
+func (env *environment) AddBalance(call jsre.Call) (goja.Value, error) {
+	addr := common.HexToAddress(call.Arguments[0].String())
+	amount := big.NewInt(0)
+	amount.SetString(call.Arguments[1].String(), 10)
+	if amount.Sign() > 0 {
+		log.Info("Adding balance", "addr", addr, "amount", amount.String())
+		env.state.AddBalance(addr, amount)
+		env.state.Finalise(true)
+	}
+	data := env.state.GetBalance(addr)
+	return call.VM.ToValue(data.String()), nil
+}
+
 func (env *environment) Call(call jsre.Call) (goja.Value, error) {
 	env.state.SetTxContext(common.HexToHash(fmt.Sprintf("%v", env.tcount)), env.tcount)
 	env.tcount++

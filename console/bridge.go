@@ -65,6 +65,7 @@ type Executor interface {
 	GetCode(call jsre.Call) (goja.Value, error)
 	GetCodeHash(call jsre.Call) (goja.Value, error)
 	GetBalance(call jsre.Call) (goja.Value, error)
+	AddBalance(call jsre.Call) (goja.Value, error)
 }
 
 // NewAccount is a wrapper around the personal.newAccount RPC method that uses a
