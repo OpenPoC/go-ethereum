@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/ecdsa"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
@@ -72,26 +73,25 @@ type environment struct {
 	state *state.StateDB
 	coinbase common.Address
 	chainConfig *params.ChainConfig
-	vmConfig *vm.Config
 	tcount int
 }
 
 func (env *environment) GetCode(call jsre.Call) (goja.Value, error) {
 	addr := common.HexToAddress(call.Arguments[0].String())
 	data := env.state.GetCode(addr)
-	return call.VM.ToValue(data), nil
+	return call.VM.ToValue(hex.EncodeToString(data)), nil
 }
 
 func (env *environment) GetCodeHash(call jsre.Call) (goja.Value, error) {
 	addr := common.HexToAddress(call.Arguments[0].String())
 	data := env.state.GetCodeHash(addr)
-	return call.VM.ToValue(data), nil
+	return call.VM.ToValue(data.String()), nil
 }
 
 func (env *environment) GetBalance(call jsre.Call) (goja.Value, error) {
 	addr := common.HexToAddress(call.Arguments[0].String())
 	data := env.state.GetBalance(addr)
-	return call.VM.ToValue(data), nil
+	return call.VM.ToValue(data.String()), nil
 }
 
 func (env *environment) Call(call jsre.Call) (goja.Value, error) {
