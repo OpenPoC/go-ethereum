@@ -149,6 +149,7 @@ func (c *Console) init(preload []string) error {
 			vm.Set("getCodeHash", jsre.MakeCallback(vm, bridge.GetCodeHash))
 			vm.Set("getBalance", jsre.MakeCallback(vm, bridge.GetBalance))
 			vm.Set("addBalance", jsre.MakeCallback(vm, bridge.AddBalance))
+			vm.Set("getSlot", jsre.MakeCallback(vm, bridge.GetSlot))
 			_, err = vm.RunString("function caller(from, to, value, debug) { var o = { from, to, value }; o.call = function(data) {return call(this.from || '0x0', this.to || '0x0', this.value || '0x0', data || '0x', !!this.debug)}; return o; }")
 		})
 		if err != nil {

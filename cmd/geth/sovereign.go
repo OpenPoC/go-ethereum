@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dop251/goja"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -91,6 +92,13 @@ func (env *environment) GetCodeHash(call jsre.Call) (goja.Value, error) {
 func (env *environment) GetBalance(call jsre.Call) (goja.Value, error) {
 	addr := common.HexToAddress(call.Arguments[0].String())
 	data := env.state.GetBalance(addr)
+	return call.VM.ToValue(data.String()), nil
+}
+
+func (env *environment) GetSlot(call jsre.Call) (goja.Value, error) {
+	addr := common.HexToAddress(call.Arguments[0].String())
+	key := common.HexToHash(call.Arguments[1].String())
+	data := env.state.GetCommittedState(addr, key)
 	return call.VM.ToValue(data.String()), nil
 }
 
@@ -225,14 +233,23 @@ func (env *environment) call(origin common.Address, to *common.Address, value *b
 
 	env.state.Finalise(true)
 
-	if contractCreation {
+	if vmerr == nil && contractCreation {
 		contractAddress := crypto.CreateAddress(evm.TxContext.Origin, nonce)
 		log.Info("Contract was deployed", "address", contractAddress)
+		ret = contractAddress.Bytes()
 	}
 	
 	log.Info("Executed", "initial_gas", initialGas, "current", currentGas, "gas_used", initialGas - currentGas, "instrinct", gas)
 	if vmerr != nil {
-		log.Error("Execution failure", "vmerr", vmerr)
+		var msg string
+		if len(ret) > 4 {
+			StringTy, _ := abi.NewType("string", "", nil)
+			args, err := abi.Arguments{{Type: StringTy}}.Unpack(ret[4:])
+			if err == nil && len(args) > 0 {
+				msg, _ = args[0].(string)
+			}
+		}
+		log.Error("Execution failure", "vmerr", vmerr, "msg", msg)
 	}
 
 	return ret, vmerr, err

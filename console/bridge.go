@@ -63,6 +63,7 @@ func getJeth(vm *goja.Runtime) *goja.Object {
 type Executor interface {
 	Call(call jsre.Call) (goja.Value, error)
 	GetCode(call jsre.Call) (goja.Value, error)
+	GetSlot(call jsre.Call)(goja.Value, error)
 	GetCodeHash(call jsre.Call) (goja.Value, error)
 	GetBalance(call jsre.Call) (goja.Value, error)
 	AddBalance(call jsre.Call) (goja.Value, error)
