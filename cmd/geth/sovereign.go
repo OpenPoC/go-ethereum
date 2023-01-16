@@ -131,6 +131,7 @@ func (env *environment) Call(call jsre.Call) (goja.Value, error) {
 	snap := env.state.Snapshot()
 	ret, _, err := env.call(origin, to, value, data, debug)
 	if err != nil {
+		log.Error("Execution failure", "err", err)
 		env.state.RevertToSnapshot(snap)
 	}
 	return call.VM.ToValue(hexutil.Encode(ret)), nil
